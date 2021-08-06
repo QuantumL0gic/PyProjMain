@@ -76,6 +76,6 @@ function save-alias() {
 save-alias $envname="conda activate $envpath"
 
 echo "Alias: $envname added"
-. $HOME/.bashrc
+source $HOME/.bashrc
 
 echo 'Mission COMPLETE!'
