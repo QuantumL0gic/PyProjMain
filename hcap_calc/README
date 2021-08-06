@@ -1,0 +1,19 @@
+README 14/07/2021
+
+data - input data for application
+env - Virtual environment files
+src - Source code
+
+Environments was build using:
+conda env create --prefix /home/matexp/PyProj/hcap_calc/env/hcap -f /home/matexp/PyProj/resources/env_scripts/hcap_app_env_001.yml
+
+Additionally:
+.condarc updated to include prefix path above (see envs_dirs within ~/.condarc)
+.bashrc updated with:
+alias hcap='cd ~/PyProj/hcap_calc/;export PYTHONPATH=/home/matexp/PyProj/hcap_calc/env/pypkgs:$PYTHONPATH; conda activate hcap; spyder'
+
+All further python packages should be installed within spyder (ie using pip) to specified location $PYTHONPATH
+ie pip install --target=/home/matexp/PyProj/hcap_calc/env/pypkgs --no-cache-dir pkg_to_install
+Use the --no-cache-dir flag to ensure packages are not installed from cache, this will ensure there are no dependency conflicts with other environments!
+
+END README

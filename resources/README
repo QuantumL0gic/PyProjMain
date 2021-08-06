@@ -1,0 +1,6 @@
+# README 06/08/2021
+
+# folder includes yml environment build files for use with conda.
+# envinstall.sh test stript to install conda, create project directory and create environment from yml file.
+
+# END README

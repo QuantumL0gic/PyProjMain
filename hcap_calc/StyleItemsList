@@ -1,0 +1,27 @@
+# General
+Frame
+Labelframe
+
+# Score tab
+Treeview (Score)
+Scrollbar
+Entry
+Combobox
+Button
+
+
+# Course tab
+Treeview (Course)
+Scrollbar
+Entry
+Combobox
+Button
+
+# Ananlysis tab
+Label
+Checkbutton
+
+# Graph
+Background
+line colours
+

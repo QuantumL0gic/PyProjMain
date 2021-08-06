@@ -1,0 +1,15 @@
+name: hcap
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+#  - reportlab
+  - python=3.8.2
+  - scipy
+  - numpy
+#  - jupyter
+#  - jupyter_contrib_nbextensions
+#  - pandas
+#  - spyder
+#  - matplotlib
+prefix: /home/matexp/PyProj/hcap_calc/env/hcap
