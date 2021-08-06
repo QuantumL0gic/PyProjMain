@@ -1,0 +1,5 @@
+auto_activate_base: false
+envs_dirs:
+  - ~/PyProj/hcap_calc/env
+  - ~/anaconda3/envs
+env_prompt: ({name})

@@ -10,14 +10,18 @@ if [ -z "$conver" ]
 then
  echo 'Conda not present. Install Miniconda?(Y/n)'
  read invar
- if ["$invar"==Y]
+ if [ $invar == Y ]
  then
   echo 'Starting Download'
   wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-  Miniconda3-latest-Linux-x86_64.sh
-  conda config --set auto_activate_base False
-  conda config --set env_prompt '({name})'
- else
+  bash ./Miniconda3-latest-Linux-x86_64.sh
+  cat ./condaconfig >> $HOME/.condarc
+  echo "Conda config updated to include:"
+  echo "$(cat $HOME/.condarc)"
+  echo "Re-run this script from new shell!"
+  exit 1
+ elif [ $invar != Y ]
+ then
   echo 'Skipping install'
   exit 1
  fi
@@ -49,7 +53,7 @@ fi
 
 echo 'Building environment...'
 
-conda env create --prefix $envpath -f $envfile
+bash -c "conda env create --prefix $envpath -f $envfile"
 # conda config --set envs_dir $envname
 
 echo 'Adding alias to .bashrc file'
@@ -70,5 +74,8 @@ function save-alias() {
 }
 
 save-alias $envname="conda activate $envpath"
+
+echo "Alias: $envname added"
+. $HOME/.bashrc
 
 echo 'Mission COMPLETE!'
