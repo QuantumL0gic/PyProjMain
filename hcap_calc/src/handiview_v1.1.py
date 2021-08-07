@@ -31,7 +31,7 @@ import matplotlib.ticker as mticker
 from PIL import ImageTk, Image
 from cycler import cycler
 
-sys.path.append(os.path.abspath('/home/matexp/PyProj/hcap_calc/src'))
+sys.path.append(os.path.abspath('/home/matgen/PyProj/hcap_calc/src'))
 import init
 import hcapimporter as hi
 import hcapcalcs_main_v1_1 as hcalc
@@ -53,6 +53,7 @@ elif platform == 'home':
     path = home+'/Documents/'
 
 data = path+'.hcap/'
+icons = path+'icons/'
 config_default = 'hcap.conf'
 
 
@@ -674,9 +675,9 @@ def main():
     tagslist = ['Dismissed', 'Included', 'Waiting']
     
     # Import images
-    incimage = ImageTk.PhotoImage(Image.open(data+'checkbox-checked.png'))
-    waitimage = ImageTk.PhotoImage(Image.open(data+'checkbox-mixed.png'))
-    nonincimage = ImageTk.PhotoImage(Image.open(data+'checkbox.png'))
+    incimage = ImageTk.PhotoImage(Image.open(icons+'checkbox-checked.png'))
+    waitimage = ImageTk.PhotoImage(Image.open(icons+'checkbox-mixed.png'))
+    nonincimage = ImageTk.PhotoImage(Image.open(icons+'checkbox.png'))
     
     hidxdataview.tag_configure(tagslist[1], image=incimage)
     hidxdataview.tag_configure(tagslist[0], image=nonincimage)
