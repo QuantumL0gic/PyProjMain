@@ -138,7 +138,7 @@ def plotfunc(dat_hcap, col_list, wid, hig, appdpi, GraphCols):
         
         ax1.set_ylim([0, None])
         #ax1.set_xlim([min(xvals), max(xvals)])
-        ax1.set_ylabel('Handicap Index')
+        ax1.set_ylabel('Index')
         ax1.set_xlabel('Date')
         #tick_loc = ax1.get_xticks().tolist()
         #ax1.xaxis.set_major_locator(mticker.FixedLocator(tick_loc))

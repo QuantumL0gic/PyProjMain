@@ -30,8 +30,9 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.ticker as mticker
 from PIL import ImageTk, Image
 from cycler import cycler
+from itertools import cycle
 
-sys.path.append(os.path.abspath('/home/matgen/PyProj/hcap_calc/src'))
+sys.path.append(os.path.abspath('/home/matexp/PyProj/hcap_calc/src'))
 import init
 import hcapimporter as hi
 import hcapcalcs_main_v1_1 as hcalc
@@ -53,7 +54,6 @@ elif platform == 'home':
     path = home+'/Documents/'
 
 data = path+'.hcap/'
-icons = path+'icons/'
 config_default = 'hcap.conf'
 
 
@@ -86,8 +86,11 @@ statcollist = []
 other_colours = ['#2e4053', '#9b59b6']
 
 GraphCols = ['#52595D', '#5E7D7E', '#E5E4E2', '#54C571', '#43C6DB', '#FFEF00', '#FF8040', '#C45AEC']
+Highlights = ['#c0392b', '#8e44ad', '#2980b9', '#16a085', '#f1c40f', '#f39c12', '#d35400']
 
-
+fontfamilies = []
+screenh = []
+screenw = []
 # In[2]:
 ##############################################################################
 ### Start the main loop for the application (need to put this into a class) ###
@@ -240,13 +243,18 @@ def main():
             elif inclusion_state[i] == 2:
                 tag = (tagslist[2])
             #tglist = calcIncs[:,i]
-            tags = calcIncs[i,:]
-            print(tags, np.shape(tags))
-            tags =list(tags[:])
+            '''
+            inttags = calcIncs[i,:]
+            strtags = [str(t) for t in inttags]
+            #tags = calcIncs[i,:]
+            print(strtags, np.shape(strtags))
+            tags =list(strtags[:])
             print(tags)
             tags.insert(0,tag)
             print(tags)
             tags = tuple(tags)
+            '''
+            tags = (tag, showinctags[1])
             hidxdataview.insert('', 'end', iid=i, values = row, tags = tags) # !!! Use iid to select items from the database for deletion and minipulation
             tviewidx.append(i)
         global dat_score, dat_hcap, scoreidx, inclusionlist
@@ -351,17 +359,57 @@ def main():
     ### Present included rows within the Handicap Index calculation ###
     def tog_calc_included(event):
         #row = hidxdataview.identify_row(event.y)
+        # !!! Change !!!
+        #hidxdataview.tag_configure('-9.0', background=TreeviewCols[0])
+        #hidxdataview.configure(style='Treeview')
+        ### Reset dats to None highlighted ###
+        for l in range(len(inclusionlist)):
+            taglist = list(hidxdataview.item(l, 'tags'))
+            taglist[1] = showinctags[1]
+            hidxdataview.item(l, tags=taglist)
+        
+        ### Get row of interest index ###
         row = hidxdataview.selection()
         index = hidxdataview.index(row)
         #currenttag = hidxdataview.item(row, 'tags')[index+1]
-        taglist = list(hidxdataview.item(row, 'tags'))
-        tag = taglist[index+1]
+        ### Find which rows are included in the calcuations from the inclusion list ###
+        # Only look at previous rows
+        inclist = inclusionlist[index]#[:index,:]
+        #hilightrows = np.where(inclist==index)
+        #hilightrows = list(hilightrows[0])
+        #print(list(hilightrows))
+        # Get colour range
+        col = cycle(Highlights)
+        #hilightcol = next(col)
+        for i in range(index):
+            hilightcol = next(col)
+        ### Set tag for inclusion list ###
+        for r in inclist:#hilightrows:
+            taglist = list(hidxdataview.item(r, 'tags'))
+            taglist[1] = showinctags[0]
+            hidxdataview.item(r, tags=taglist)
+        hidxdataview.tag_configure(showinctags[0], background=hilightcol)
+        hidxdataview.tag_configure(showinctags[1], background=TreeviewCols[0])
+        '''
+            tag = taglist[1]
+        print(tag)
+        if tag != '-9.0':
+            print('Is tag')
+            print(str(tag))
+        else:
+            print('is -9')
+            print(str(tag))
         #col = cycler(colour=GraphCols)
         #for i, c in zip(range(index), col):
         #    colour = col[c]
         #    idcol = colour['colour']
-        if tag != -9:    
+        if tag != '-9.0':
+            #hidxdataview.tag_configure('-9.0', background=TreeviewCols[0])
             hidxdataview.tag_configure(tag, background='black')
+            hidxdataview.tag_configure('-9.0', background=TreeviewCols[0])
+        else:
+            hidxdataview.tag_configure('-9.0', background=TreeviewCols[0])
+        '''
         return None
     ### Regenerate handicap and score indexes ###
     def regenhidx():
@@ -445,7 +493,11 @@ def main():
         
         ### Create Treeview table for basic stats ###
         statsdataview = ttk.Treeview(wrapper_t3_2)#, style='T2.Treeview')
-        statsdataview.place(relheight=0.9, relwidth = 0.30, rely = 0.01, relx = 0.35)#grid(row=0, column=2) #place(relheight=1, relwidth=1)
+        if appscale == 2:
+            xoffset = 0.35
+        else:
+            xoffset = 0.69
+        statsdataview.place(relheight=0.9, relwidth = 0.30, rely = 0.01, relx = xoffset)#grid(row=0, column=2) #place(relheight=1, relwidth=1)
         # Setup columns for display
         statviewcols = ['Stat']
         for col in col_list:
@@ -608,13 +660,27 @@ def main():
     
     screenheight = root.winfo_screenheight()
     screenwidth = root.winfo_screenwidth()
-    appwinheight = round(screenheight/2)
-    appwinwidth = round(screenwidth/2)
+    #screenheight = 1080
+    #screenwidth = 1920
+    if screenheight > 1080:
+        appscale = 2
+    else:
+        appscale = 1
+    
+    appwinheight = round(screenheight/appscale)
+    appwinwidth = round(screenwidth/appscale)
     appdpi = root.winfo_fpixels('1i')
     
     appgeom = str(appwinwidth)+'x'+str(appwinheight)
     
     root.geometry(appgeom)
+    
+#    global screenh, screenw
+#    screenh = screenheight
+#    screenw = screenwidth
+    #mainfont = font.nametofont('TkDefaultFont')
+    #mainfont.configure(size='72')
+    #root.option_add('*Font', mainfont)
     ### Add tab control and tabs ###
     tabControl = ttk.Notebook(root) #, style='N1.TNotebook')
     tab1 = ttk.Frame(tabControl) #, style='F1.TFrame')
@@ -673,11 +739,12 @@ def main():
     
     ### Add tag configuration to show images (for inclusion status) ###
     tagslist = ['Dismissed', 'Included', 'Waiting']
+    showinctags = ['Inc', 'None']
     
     # Import images
-    incimage = ImageTk.PhotoImage(Image.open(icons+'checkbox-checked.png'))
-    waitimage = ImageTk.PhotoImage(Image.open(icons+'checkbox-mixed.png'))
-    nonincimage = ImageTk.PhotoImage(Image.open(icons+'checkbox.png'))
+    incimage = ImageTk.PhotoImage(Image.open(data+'checkbox-checked.png'))
+    waitimage = ImageTk.PhotoImage(Image.open(data+'checkbox-mixed.png'))
+    nonincimage = ImageTk.PhotoImage(Image.open(data+'checkbox.png'))
     
     hidxdataview.tag_configure(tagslist[1], image=incimage)
     hidxdataview.tag_configure(tagslist[0], image=nonincimage)
@@ -904,9 +971,16 @@ def main():
     '''
     # Font colours
     FontCols = ['#E5E4E2'] # Platinum
+
+    fontfams = font.families()
     
-        
-    FontTypesHelv = ('fixed', 22, 'bold')
+    mainfont = font.Font(family='malayalam',size=8)
+    
+    global fontfamilies
+    fontfamilies = fontfams
+    #mainfont = font.nametofont('TkDefaultFont')
+    #mainfont.configure(size=100)
+    #FontTypesHelv = ('fixed', 50, 'bold')
     #FontTypes[0]
     b_reliefs = ["flat", "raised", "sunken", "ridge", "solid", "groove"]
     
@@ -925,22 +999,23 @@ def main():
                    settings={"TNotebook": {"configure": {"tabmargins": [2, 5, 2, 0],
                                                          "background": FrameCols[0],
                                                          "foreground": FontCols[0],
-                                                         "font" : FontTypesHelv} },
+                                                         "font" : mainfont
+                                                         } },
                              "TNotebook.Tab": {"configure": {"padding": [5, 1],
-                                                             "font" : FontTypesHelv,
+                                                             "font" : mainfont,
                                                              "background": FrameCols[1],
                                                              "foreground": FontCols[0]},
                                                "map":       {"background": [("selected", BoxButtonCols[2])],
                                                              "foreground": [("selected", FontCols[0])],
                                                              "expand": [("selected", [1, 1, 1, 0])] } },
                              "Treeview": {"configure": {"rowheight": 32,
-                                                        "font" : FontTypesHelv,
+                                                        "font" : mainfont,
                                                         "background": TreeviewCols[0],
                                                         "foreground": FontCols[0],
                                                         "fieldbackground": TreeviewCols[0]},
                                           "map": {"background": [("selected", BoxButtonCols[2])]}},
                              "TButton": {"configure": {"padding": [5, 5],
-                                                       "font" : FontTypesHelv,
+                                                       "font" : mainfont,
                                                        "background": BoxButtonCols[0],
                                                        "foreground": FontCols[0],
                                                        "borderwidth": 3,
@@ -948,25 +1023,25 @@ def main():
                                                        "relief": b_reliefs[1]},
                                          "map": {"background": [('disabled',FrameCols[2]), ('active',BoxButtonCols[2])],
                                                  "relief": [('pressed', '!disabled', 'sunken')]}},
-                             "TFrame": {"configure": {"font": FontTypesHelv,
+                             "TFrame": {"configure": {"font": mainfont,
                                                       "background": FrameCols[0],
                                                       "foreground": FontCols[0]}},
-                             "TLabelframe": {"configure": {"font": FontTypesHelv,
+                             "TLabelframe": {"configure": {"font": mainfont,
                                                       "background": FrameCols[0],
                                                       "foreground": FrameCols[0]}}, #FontCols[0]
-                             "TLabelframe.Label": {"configure": {"font": FontTypesHelv,
+                             "TLabelframe.Label": {"configure": {"font": mainfont,
                                                                  'padding': [30, 30],
                                                                  "background": FrameCols[1],
                                                                  "foreground": FontCols[0]}}, #FontCols[0]
                              "TLabel": {"configure": {"padding": [40,20],
-                                                      "font": FontTypesHelv,
+                                                      "font": mainfont,
                                                       "background": FrameCols[1],
                                                       "foreground": FontCols[0],
                                                       "borderwidth": 2,
                                                       "bordercolor": FontCols[0],
                                                       "relief": b_reliefs[2]}}, #"borderwidth": 4,
                              "TCheckbutton": {"configure": {"padding": [20, 20],
-                                                            "font": FontTypesHelv,
+                                                            "font": mainfont,
                                                             "background": FrameCols[1],
                                                             "foreground": FontCols[0],
                                                             "borderwidth": 2,
@@ -1012,7 +1087,7 @@ def main():
     coursestyle = ttk.Style(cratdataview)
     coursestyle.configure('T2.Treeview',
                           rowheight = 25,
-                          font=FontTypesHelv,
+                          font=mainfont,
                           background=TreeviewCols[1],
                           foreground = FontCols[0],
                           fieldbackground = TreeviewCols[1]) # Images are 32 pixels
@@ -1030,3 +1105,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+    
+x = np.where(inclusionlist==6)
+print(list(x[0]))

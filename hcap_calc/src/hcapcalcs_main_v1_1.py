@@ -135,8 +135,8 @@ def calc_hidx_cidx(dat_hcap, dat_direction, calc_noninclusive):
     cal_nines_idx = list(cal_nines.index.values)
     nines_count = len(cal_nines)
     i = 0
-    if nines_count%2 == 0 and nines_count > 1:
-        while i in range(nines_count):
+    if nines_count%2 == 0 and nines_count > 1: # Check even number of 9hole rounds to be paired
+        while i in range(nines_count): # Loop over pairs in accending order
             diff_tmp = cal_nines.loc[cal_nines_idx[i],'Differential']
             diff_tmp2 = cal_nines.loc[cal_nines_idx[i+1],'Differential']
             net_diff.append(diff_tmp+diff_tmp2)
@@ -184,14 +184,15 @@ def calc_hidx_cidx(dat_hcap, dat_direction, calc_noninclusive):
     hidx_index = cal_hidx.index.values
     #hidx_roll = []
     
-    hcap_len = len(dat_hcap)
-    hidx_incs = np.ones((hcap_len,hcap_len))*-9
+    #hcap_len = len(dat_hcap)
+    #sparerounds = len(dat_hcap)-len(cal_hidx)
+    #hidx_incs = [[[-9]]*sparerounds]
+    hidx_incs = []#np.ones((hcap_len,hcap_len))*-9
     
     #hidx_tmp = cal_hidx.loc[cal_hidx.index <= 7, 'Differential']
     #hidx_vals = hidx_tmp.nsmallest(3)
     #hidx_idx = hidx_vals.index.values
     #hidx = hidx_vals.to_numpy().mean() - 1
-    
     ### Loop over table in ascending order to calculate handicap index ###
     for i, index in enumerate(hidx_index):
         #print(str(index), str(i))
@@ -200,45 +201,45 @@ def calc_hidx_cidx(dat_hcap, dat_direction, calc_noninclusive):
             hidx_tmp = cal_hidx.loc[cal_hidx.index <= index, 'Differential']
             if j <= 3:
                 hidx_vals = hidx_tmp.nsmallest(1)
-                hidx_idx = hidx_vals.index.values
+                hidx_idx = hidx_vals.index.values.tolist()
                 hidx = hidx_vals.to_numpy().mean() - 2
             if j == 4:
                 hidx_vals = hidx_tmp.nsmallest(1)
-                hidx_idx = hidx_vals.index.values
+                hidx_idx = hidx_vals.index.values.tolist()
                 hidx = hidx_vals.to_numpy().mean() - 1
             if j == 5:
                 hidx_vals = hidx_tmp.nsmallest(1)
-                hidx_idx = hidx_vals.index.values
+                hidx_idx = hidx_vals.index.values.tolist()
                 hidx = hidx_vals.to_numpy().mean()
             if j == 6:
                 hidx_vals = hidx_tmp.nsmallest(2)
-                hidx_idx = hidx_vals.index.values
+                hidx_idx = hidx_vals.index.values.tolist()
                 hidx = hidx_vals.to_numpy().mean() - 1
             if j in range(7,9):
                 hidx_vals = hidx_tmp.nsmallest(2)
-                hidx_idx = hidx_vals.index.values
+                hidx_idx = hidx_vals.index.values.tolist()
                 hidx = hidx_vals.to_numpy().mean()
             if j in range(9,12):
                 hidx_vals = hidx_tmp.nsmallest(3)
-                hidx_idx = hidx_vals.index.values
+                hidx_idx = hidx_vals.index.values.tolist()
                 hidx = hidx_vals.to_numpy().mean()
             if j in range(12,15):
                 hidx_vals = hidx_tmp.nsmallest(4)
-                hidx_idx = hidx_vals.index.values
+                hidx_idx = hidx_vals.index.values.tolist()
                 hidx = hidx_vals.to_numpy().mean()
             if j in range(15,17):
                 hidx_vals = hidx_tmp.nsmallest(5)
-                hidx_idx = hidx_vals.index.values
+                hidx_idx = hidx_vals.index.values.tolist()
                 hidx = hidx_vals.to_numpy().mean()
             if j in range(17,19):
                 hidx_vals = hidx_tmp.nsmallest(6)
-                hidx_idx = hidx_vals.index.values
+                hidx_idx = hidx_vals.index.values.tolist()
                 hidx = hidx_vals.to_numpy().mean()
             if j == 19:
                 hidx_vals = hidx_tmp.nsmallest(7)
-                hidx_idx = hidx_vals.index.values
+                hidx_idx = hidx_vals.index.values.tolist()
                 hidx = hidx_vals.to_numpy().mean()
-        if j >= 20:
+        elif j >= 20:
             hidx_tmp = cal_hidx.loc[cal_hidx.index <= index]
             hidx_tmp = hidx_tmp.nlargest(20, 'Date')
             hidx_tmp = hidx_tmp.loc[:, 'Differntial']
@@ -247,11 +248,15 @@ def calc_hidx_cidx(dat_hcap, dat_direction, calc_noninclusive):
             hidx = hidx_vals.to_numpy().mean()
         # Set values in main table.    
         dat_hcap.loc[dat_hcap.index == index, 'Handicap Index'] = hidx
-        #hidx_incs.append(tuple(hidx_idx))
-        for idx in hidx_idx:
-            hidx_incs[idx, i] = i
-        
-    
+        ### Check if this is a paired 9hole round and inset hidx_incs in pairing
+        pairidx = dat_hcap.loc[dat_hcap.index == index, 'PairingIdx'].tolist()
+        if pairidx[0] != 0: # Check if this is a paried 9 hole round ie index greater than 0
+            paired_hidx_idx = hidx_idx
+            paired_hidx_idx.append(pairidx[0]) # Append paried index into list of hidxcalc included indecies
+            hidx_incs.append(paired_hidx_idx) # Append this to the inclusion list 
+            hidx_incs.insert(pairidx[0], hidx_idx) # Insert into paried 9hole round the list of hidxcalc included indexes
+        else: # if round is not a 9hole matched pair
+            hidx_incs.append(hidx_idx) # Just append the the list of hidxcalc indecies
     
     # Set handicap index for non included scores within the calculation of the handicap index.
     # This is to generate viable scores for playing half rounds and calculation the course index
