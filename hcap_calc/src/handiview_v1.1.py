@@ -55,6 +55,7 @@ elif platform == 'home':
 
 data = path+'.hcap/'
 config_default = 'hcap.conf'
+icons = path+'icons/'
 
 
 calc_noninclusive = 'Y' # provide a handicap index for non inclusive rounds within the handicap index calculations ie half rounds that have been paired.
@@ -742,9 +743,9 @@ def main():
     showinctags = ['Inc', 'None']
     
     # Import images
-    incimage = ImageTk.PhotoImage(Image.open(data+'checkbox-checked.png'))
-    waitimage = ImageTk.PhotoImage(Image.open(data+'checkbox-mixed.png'))
-    nonincimage = ImageTk.PhotoImage(Image.open(data+'checkbox.png'))
+    incimage = ImageTk.PhotoImage(Image.open(icons+'starred.png'))
+    waitimage = ImageTk.PhotoImage(Image.open(icons+'semi-starred-rtl.png'))
+    nonincimage = ImageTk.PhotoImage(Image.open(icons+'non-starred.png'))
     
     hidxdataview.tag_configure(tagslist[1], image=incimage)
     hidxdataview.tag_configure(tagslist[0], image=nonincimage)

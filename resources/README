@@ -3,4 +3,8 @@
 # folder includes yml environment build files for use with conda.
 # envinstall.sh test stript to install conda, create project directory and create environment from yml file.
 
+# Generate environment and setup another directory to install all additional packages for python into.
+# Set this directory to you $PYTHONPATH env variable before activating the environment.
+# pip install --target='$PYTHONPATH' --no-cahe-dir package
+
 # END README
