@@ -165,12 +165,12 @@ def calc_hidx_cidx(dat_hcap, dat_direction, calc_noninclusive):
     
     # Update table with new net pairings and set inclusion
     if len(paired_indecies) > 0:
-        for i in range(len(paired_indecies)):    
-            dat_hcap.loc[dat_hcap.index == paired_indecies[i][0], 'Differential'] = net_diff[i] #Inclusion
-            dat_hcap.loc[dat_hcap.index == paired_indecies[i][0], 'PairingIdx'] = paired_indecies[i][1]
-            dat_hcap.loc[dat_hcap.index == paired_indecies[i][0], 'Inclusion'] = 1
-            dat_hcap.loc[dat_hcap.index == paired_indecies[i][1], 'PairingIdx'] = paired_indecies[i][0]
-            dat_hcap.loc[dat_hcap.index == paired_indecies[i][1], 'Inclusion'] = 2
+        for p in range(len(paired_indecies)):    
+            dat_hcap.loc[dat_hcap.index == paired_indecies[p][0], 'Differential'] = net_diff[p] #Inclusion
+            dat_hcap.loc[dat_hcap.index == paired_indecies[p][0], 'PairingIdx'] = paired_indecies[p][1]
+            dat_hcap.loc[dat_hcap.index == paired_indecies[p][0], 'Inclusion'] = 1
+            dat_hcap.loc[dat_hcap.index == paired_indecies[p][1], 'PairingIdx'] = paired_indecies[p][0]
+            dat_hcap.loc[dat_hcap.index == paired_indecies[p][1], 'Inclusion'] = 2
     
     # Set inclusion for all full 18 hole rounds
     #dat_hcap.loc[dat_hcap.Direction == dat_direction.iloc[0,0], 'Inclusion'] = 1

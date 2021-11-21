@@ -975,7 +975,7 @@ def main():
 
     fontfams = font.families()
     
-    mainfont = font.Font(family='malayalam',size=8)
+    mainfont = font.Font(family='malayalam',size=16)
     
     global fontfamilies
     fontfamilies = fontfams
