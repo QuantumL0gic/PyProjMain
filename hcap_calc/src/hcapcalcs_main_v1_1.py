@@ -82,7 +82,7 @@ def port_courserat(dat_score, dat_course, dat_direction):
 ##############################################################################
 ### Slice table for included differentials in calculations ###
 def calc_hidx_cidx(dat_hcap, dat_direction, calc_noninclusive):
-    ### Reformat dat_hcap and sort by descending date ###
+    ### Reformat dat_hcap and sort by ascending date ###
     dat_hcap['Date'] = pd.to_datetime(dat_hcap.Date, format='%d/%m/%Y', infer_datetime_format=True)
     dat_hcap = dat_hcap.sort_values('Date', ascending=True)
     dat_hcap.reset_index(inplace=True, drop=True)
@@ -242,13 +242,13 @@ def calc_hidx_cidx(dat_hcap, dat_direction, calc_noninclusive):
         elif j >= 20:
             hidx_tmp = cal_hidx.loc[cal_hidx.index <= index]
             hidx_tmp = hidx_tmp.nlargest(20, 'Date')
-            hidx_tmp = hidx_tmp.loc[:, 'Differntial']
+            hidx_tmp = hidx_tmp.loc[:, 'Differential']
             hidx_vals = hidx_tmp.nsmallest(8)
             hidx_idx = hidx_vals.index.values.tolist()
             hidx = hidx_vals.to_numpy().mean()
         # Set values in main table.    
         dat_hcap.loc[dat_hcap.index == index, 'Handicap Index'] = hidx
-        ### Check if this is a paired 9hole round and inset hidx_incs in pairing
+        ### Check if this is a paired 9hole round and insert paried index into hidx_incs
         pairidx = dat_hcap.loc[dat_hcap.index == index, 'PairingIdx'].tolist()
         if pairidx[0] != 0: # Check if this is a paried 9 hole round ie index greater than 0
             paired_hidx_idx = hidx_idx
@@ -257,6 +257,10 @@ def calc_hidx_cidx(dat_hcap, dat_direction, calc_noninclusive):
             hidx_incs.insert(pairidx[0], hidx_idx) # Insert into paried 9hole round the list of hidxcalc included indexes
         else: # if round is not a 9hole matched pair
             hidx_incs.append(hidx_idx) # Just append the the list of hidxcalc indecies
+    
+    ### Update non inclusive 9 hole rounds with zero value ###
+    none9_index = dat_hcap.loc[(dat_hcap['PairingIdx'] == 0) & (dat_hcap['Inclusion'] == 2)].index.values
+    hidx_incs.insert(none9_index[0], 0) # There should only ever be 1 value!
     
     # Set handicap index for non included scores within the calculation of the handicap index.
     # This is to generate viable scores for playing half rounds and calculation the course index
@@ -339,7 +343,7 @@ def opt_hidx(dat_hcap):
         if j >= 20:
             #hidx_tmp = cal_hidx.loc[cal_hidx.index <= index]
             #hidx_tmp = hidx_tmp.nsmallest(20, 'Date')
-            hidx_tmp = hidx_tmp.loc[:, 'Differntial']
+            hidx_tmp = cal_hidx['Differential']
             hidx_vals = hidx_tmp.nsmallest(8)
             hidx_idx = hidx_vals.index.values
             hidx = hidx_vals.to_numpy().mean()

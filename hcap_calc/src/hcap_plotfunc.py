@@ -100,6 +100,17 @@ def plotfunc(dat_hcap, col_list, wid, hig, appdpi, GraphCols):
     ######################################
     ### Slice table only for included (selected scores) ###
     stats_df = dat_hcap[dat_hcap['Inclusion'] == 1]
+    
+    ### Combine paired index scores and recalculate netscores ###
+    paired = dat_hcap.loc[(dat_hcap['PairingIdx'] > 0) & (dat_hcap['Inclusion'] == 2)]
+    for i, pindx in enumerate(paired['PairingIdx']):
+        pscore = paired.iloc[i,4]
+        score = stats_df.loc[stats_df.index == pindx, 'Score']
+        stats_df.loc[stats_df.index==pindx, 'Score'] = score+pscore
+    stats_df['Net Score'] = stats_df['Score']-stats_df['CourseIdx']
+    stats_df = stats_df.round(decimals=1)
+    stats_df['Net Score'] = stats_df['Net Score'].round(decimals=0)
+    
     ### Set colours for graphing
     bgcol = GraphCols[0:2]
     #bgcol
@@ -156,6 +167,17 @@ def plotfunc(dat_hcap, col_list, wid, hig, appdpi, GraphCols):
 def basicstats(dat_hcap, col_list):
     ### Basic stats ###
     hcap_stats = dat_hcap[dat_hcap['Inclusion'] == 1]
+    
+    ### Combine paired index scores and recalculate netscores ###
+    paired = dat_hcap.loc[(dat_hcap['PairingIdx'] > 0) & (dat_hcap['Inclusion'] == 2)]
+    for i, pindx in enumerate(paired['PairingIdx']):
+        pscore = paired.iloc[i,4]
+        score = hcap_stats.loc[hcap_stats.index == pindx, 'Score']
+        hcap_stats.loc[hcap_stats.index==pindx, 'Score'] = score+pscore
+    hcap_stats['Net Score'] = hcap_stats['Score']-hcap_stats['CourseIdx']
+    hcap_stats = hcap_stats.round(decimals=1)
+    hcap_stats['Net Score'] = hcap_stats['Net Score'].round(decimals=0)
+    
     # Data tables
     stats_tmp = np.zeros((3,len(col_list)))
     for c, col in enumerate(col_list):
